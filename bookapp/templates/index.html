@@ -7,35 +7,37 @@
 {% block body %}
     <div class="container content-container">
         <div class="row content-row">
-            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+            <div class="{{ 'col-lg-12 col-md-12 col-sm-12 col-xs-12' if current_user.is_authenticated else 'col-lg-9 col-md-9 col-sm-9 col-xs-9' }}">
                 books!
             </div>
-            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 reg-section">
-                <div class="reg-form-container d-flex flex-column justify-content-center">
-                    <h4 class="mt-5 mb-3 ml-3">Register</h4>
-                    <div id="regSuccess" class="ml-3 alert alert-success" role="alert" style="display:none;"></div>
-                    <form id="regForm" class="ml-3">
-                        {{ reg_form.hidden_tag() }}
-                        <fieldset class="form-group">
-                            <div class="form-group">
-                                {{ reg_form.username(class="form-control form-control-sm", Placeholder="Username") }}
-                            </div>
-                            <div class="form-group">
-                                {{ reg_form.email(class="form-control form-control-sm", Placeholder="Email") }}
-                            </div>
-                            <div class="form-group">
-                                {{ reg_form.password(class="form-control form-control-sm", Placeholder="Password") }}
-                            </div>
-                            <div class="form-group">
-                                {{ reg_form.confirm_password(class="form-control form-control-sm", Placeholder="Confirm Password") }}
-                            </div>
-                            <div class="form-group">
-                                <input type="submit" class="btn btn-primary btn-sm submit-btn" value="Signup">
-                            </div>
-                        </fieldset>
-                    </form>
+            {% if not current_user.is_authenticated %}
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 reg-section">
+                    <div class="reg-form-container d-flex flex-column justify-content-center">
+                        <h4 class="mt-5 mb-3 ml-3">Register</h4>
+                        <div id="regSuccess" class="ml-3 alert alert-success" role="alert" style="display:none;"></div>
+                        <form id="regForm" class="ml-3">
+                            {{ reg_form.hidden_tag() }}
+                            <fieldset class="form-group">
+                                <div class="form-group">
+                                    {{ reg_form.username(class="form-control form-control-sm", Placeholder="Username") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ reg_form.email(class="form-control form-control-sm", Placeholder="Email") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ reg_form.password(class="form-control form-control-sm", Placeholder="Password") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ reg_form.confirm_password(class="form-control form-control-sm", Placeholder="Confirm Password") }}
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" class="btn btn-primary btn-sm submit-btn" value="Signup">
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -11,7 +11,8 @@ header {
 }
 
 .forgot-password {
-  margin-top: 32px;
+  margin-top: 33px;
+  color: red;
 }
 
 .content-row, .content-container {
