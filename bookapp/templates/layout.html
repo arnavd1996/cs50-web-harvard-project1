@@ -62,6 +62,13 @@
                         $(`#${formId}`).removeClass('is-invalid') 
                         $( `.${formId}-invalid-feedback` ).remove();
                     })
+                $('#loginFailed').hide()
+                $("#loginForm input[id]")         // find spans with ID attribute
+                    .map(function() { return this.id; }) // convert to set of IDs
+                    .get()
+                    .forEach(function(formId) {
+                        $(`#${formId}`).removeClass('is-invalid')
+                    })
                 $.ajax({
                     type: "POST",
                     url:  "{{ url_for('register') }}",
@@ -93,6 +100,13 @@
             $('#loginForm').submit(function (e) {
                 e.preventDefault(); // block refresh
                 // remove all error messages
+                $("#regForm input[id]")         // find spans with ID attribute
+                    .map(function() { return this.id; }) // convert to set of IDs
+                    .get()
+                    .forEach(function(formId) {
+                        $(`#${formId}`).removeClass('is-invalid') 
+                        $( `.${formId}-invalid-feedback` ).remove();
+                    })
                 $("#loginForm input[id]")         // find spans with ID attribute
                     .map(function() { return this.id; }) // convert to set of IDs
                     .get()
@@ -110,6 +124,7 @@
                     },
                     data: $('#loginForm').serialize(), // serializes the forms' elements.
                     success: function (data) {
+                        console.log(data)
                         if(data.error) {
                             $("#loginForm input[id]")         // find spans with ID attribute
                                 .map(function() { return this.id; }) // convert to set of IDs
@@ -118,6 +133,8 @@
                                     $(`#${formId}`).addClass('is-invalid')
                                 })
                             $('#loginFailed').text(`Login Failed. Please Try Again.`).show();
+                        } else {
+                            location.reload(); // hack reload so current_user.is_authenticated works. it's fine
                         }
                     }
                 });

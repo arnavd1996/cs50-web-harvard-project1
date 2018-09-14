@@ -6,8 +6,9 @@ from flask_login import login_user, current_user, logout_user
 # 2 - generate database schema
 Base.metadata.create_all(engine)
 
-@app.route("/", endpoint='/')
-def index():
+@app.route("/")
+@app.route("/home")
+def home():
     reg_form = RegistrationForm()
     login_form = LoginForm()
     return render_template('index.html', reg_form=reg_form, login_form=login_form)
@@ -26,18 +27,17 @@ def register():
 @app.route("/login", methods=['post'])
 def login():
     login_form = LoginForm()
-    if login_form.validate_on_submit():
-        user = dbSession.query(User).filter(User.email == login_form.login_email.data).first()
-        if user and bcrypt.check_password_hash(user.password, login_form.login_password.data):
-            login_user(user)
-            return redirect(url_for('/'))
-        else:
-            return jsonify({'error': 'Login Failed'})
+    user = dbSession.query(User).filter(User.email == login_form.login_email.data).first()
+    if login_form.validate_on_submit() and user and bcrypt.check_password_hash(user.password, login_form.login_password.data):
+        login_user(user)
+        return jsonify({'error': None })
+    else:
+        return jsonify({'error': 'Login Failed'})
 
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('/'))
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
