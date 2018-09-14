@@ -134,7 +134,7 @@
                                 })
                             $('#loginFailed').text(`Login Failed. Please Try Again.`).show();
                         } else {
-                            location.reload(); // hack reload so current_user.is_authenticated works. it's fine
+                            location.reload(); // hack reload so current_user.is_authenticated works since we're only in 1 route, we're not rendering template on /login and /register
                         }
                     }
                 });
