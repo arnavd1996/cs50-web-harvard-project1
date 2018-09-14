@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block header %}
+    <header class="pt-2 pb-3">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+            <a class="navbar-brand" href="#">Book App</a>
+            <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse" id="navbarsExample07">
+                <ul class="navbar-nav mr-auto">
+                <!-- <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li> -->
+                <form class="form-inline my-md-0">
+                    <input class="form-control form-control-sm" type="text" placeholder="Search" aria-label="Search">
+                </form>
+                </ul>
+                <form class="form-inline my-md-0">
+                    <div class="form-group mx-sm-3">
+                        <label for="inputPassword2" class="sr-only">Email</label>
+                        <input type="text" class="form-control form-control-sm" id="inputEmail" placeholder="Email">
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div class="form-group mr-sm-3">
+                            <label for="inputPassword2" class="sr-only">Password</label>
+                            <input type="password" class="form-control form-control-sm" id="inputPassword2" placeholder="Password">
+                        </div>
+                        <small class="forgot-password form-text text-muted position-absolute">forgot password?</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Login</button>
+                </form>
+            </div>
+            </div>
+        </nav>
+    </header>
+{% endblock %}

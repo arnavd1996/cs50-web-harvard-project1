@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+header {
+  border-bottom: 1px solid #CED4DA;
+}
+
+.forgot-password {
+  margin-top: 32px;
+}
+
+.content-row, .content-container {
+  height: 100% !important;
+}
+
+.reg-section {
+  height: 100% !important;
+  border-left: 1px solid #CED4DA;
+}
+
+/*# sourceMappingURL=index.css.map */

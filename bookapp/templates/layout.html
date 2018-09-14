@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    </head>
+    <body>
+        <header class="pt-2 pb-3">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container">
+                  <a class="navbar-brand" href="#">Book App</a>
+                  <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="navbar-collapse collapse" id="navbarsExample07">
+                    <ul class="navbar-nav mr-auto">
+                      <!-- <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                      </li> -->
+                      <form class="form-inline my-md-0">
+                        <input class="form-control form-control-sm" type="text" placeholder="Search" aria-label="Search">
+                      </form>
+                    </ul>
+                    <form class="form-inline my-md-0">
+                        <div class="form-group mx-sm-3">
+                            <label for="inputPassword2" class="sr-only">Email</label>
+                            <input type="text" class="form-control form-control-sm" id="inputEmail" placeholder="Email">
+                        </div>
+                        <div class="d-flex flex-column">
+                            <div class="form-group mr-sm-3">
+                                <label for="inputPassword2" class="sr-only">Password</label>
+                                <input type="password" class="form-control form-control-sm" id="inputPassword2" placeholder="Password">
+                            </div>
+                            <small class="forgot-password form-text text-muted position-absolute">forgot password?</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Login</button>
+                    </form>
+                  </div>
+                </div>
+              </nav>
+        </header>
+        {% block body %}
+        {% endblock %}
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+            $('#regForm').submit(function (e) {
+                e.preventDefault(); // block refresh
+                // remove all error messages
+                $("#regForm input[id]")         // find spans with ID attribute
+                    .map(function() { return this.id; }) // convert to set of IDs
+                    .get()
+                    .forEach(function(formId) {
+                        $(`#${formId}`).removeClass('is-invalid') 
+                        $( `.${formId}-invalid-feedback` ).remove();
+                    })
+                $.ajax({
+                    type: "POST",
+                    url:  "{{ url_for('register') }}",
+                    data: $('#regForm').serialize(), // serializes the forms' elements.
+                    success: function (data) {
+                        if(data.errors) {
+                            Object.getOwnPropertyNames(data.errors).forEach(function(err) {
+                                $(`#${err}`).addClass('is-invalid')
+                                $( `<div class='${err}-invalid-feedback invalid-feedback'> </div>` ).insertAfter(`#${err}`);
+                                data.errors[err].forEach(function(errmessage) {
+                                    $( `.${err}-invalid-feedback` ).append( `<span>${errmessage}</span>` );
+                                });
+                            })
+                            $('#regSuccess').hide();
+                        } else {
+                            var username = $('#username').val();
+                            $('#regSuccess').text(`Created Account for ${username}!`).show();
+                            $('#regForm')[0].reset(); // https://stackoverflow.com/questions/16452699/how-to-reset-a-form-using-jquery-with-reset-method
+                        }
+                    }
+                });
+            });
+            // Inject our CSRF token into our AJAX request.
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ reg_form.csrf_token._value() }}")
+                    }
+                }
+            })
+        });
+    </script>    
+</html>
