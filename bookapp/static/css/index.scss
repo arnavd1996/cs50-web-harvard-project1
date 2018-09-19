@@ -13,12 +13,18 @@ header {
 %h100 {
     height: 100% !important;
 }
-.content-container {
+@mixin calc($property, $expression) {
+    #{$property}: -moz-calc(#{$expression});
+    #{$property}: -webkit-calc(#{$expression});
+    #{$property}: calc(#{$expression});
+}
+.content-container, .content-row {
     @extend %h100;
 }
-.content-row {
-    @extend %h100;
+.reg-container {
+    @include calc( height, '100% - 82px')
 }
+
 .reg-section {
     height: 100% !important;
     border-left: 1px solid #CED4DA;

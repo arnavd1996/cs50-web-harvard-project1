@@ -12,11 +12,16 @@ header {
 
 .forgot-password {
   margin-top: 33px;
-  color: red;
 }
 
-.content-row, .content-container {
+.content-container, .content-row {
   height: 100% !important;
+}
+
+.reg-container {
+  height: -moz-calc(100% - 82px);
+  height: -webkit-calc(100% - 82px);
+  height: calc(100% - 82px);
 }
 
 .reg-section {

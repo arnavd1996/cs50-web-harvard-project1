@@ -1,43 +1,80 @@
-from flask import Flask, session, render_template, url_for, flash, redirect, jsonify, request
+from flask import Flask, session, render_template, url_for, flash, redirect, jsonify, request, g, session 
 from bookapp import app, Base, engine, dbSession, bcrypt
 from bookapp.forms import RegistrationForm, LoginForm
 from bookapp.models import User, Review, Book
-from flask_login import login_user, current_user, logout_user
 # 2 - generate database schema
 Base.metadata.create_all(engine)
 
 @app.route("/")
 @app.route("/home")
 def home():
-    reg_form = RegistrationForm()
-    login_form = LoginForm()
-    return render_template('index.html', reg_form=reg_form, login_form=login_form)
+    return render_template('index.html')
 
-@app.route('/register/', methods=['post'])
+@app.route('/register', methods=['post', 'get'])
 def register():
+    message = None
     reg_form = RegistrationForm()
-    if reg_form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(reg_form.password.data).decode('utf-8')
-        dbSession.add(User(reg_form.username.data, reg_form.email.data, hashed_password))
-        dbSession.commit()
-        dbSession.close()
-        return jsonify({'errors': None })
-    return jsonify({'errors': reg_form.errors})
+    if request.method == 'POST':
+        if dbSession.execute(
+            "SELECT * FROM users WHERE email = :email",
+            {"email": reg_form.email.data}
+        ).fetchone() is not None:
+            error = 'Email is already registered.'
+        elif dbSession.execute(
+            "SELECT * FROM users WHERE username = :username",
+            {"username": reg_form.username.data}
+        ).fetchone() is not None:
+            error = 'Username is already registered.'
+        elif reg_form.validate_on_submit():
+            hashed_password = bcrypt.generate_password_hash(reg_form.password.data).decode('utf-8')
+            dbSession.execute(
+                "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)",
+                {"username": reg_form.username.data, "email":  reg_form.email.data, "password": hashed_password}
+            )
+            dbSession.commit()
+            flash(u'Registration Successful', 'success')
+        flash(error, 'danger')
+    return render_template('register.html',  reg_form=reg_form)
 
-@app.route("/login", methods=['post'])
+@app.route("/login", methods=['post', 'get'])
 def login():
     login_form = LoginForm()
-    user = dbSession.query(User).filter(User.email == login_form.login_email.data).first()
-    if login_form.validate_on_submit() and user and bcrypt.check_password_hash(user.password, login_form.login_password.data):
-        login_user(user)
-        return jsonify({'error': None })
-    else:
-        return jsonify({'error': 'Login Failed'})
+    if request.method == 'POST':
+        error = None
+        user = dbSession.execute(
+            "SELECT * FROM users WHERE email = :email",
+            {"email": login_form.login_email.data}
+        ).fetchone()
 
-@app.route("/logout")
+        if login_form.validate_on_submit():
+            if user is None:
+                error='Incorrect Username'
+            elif not bcrypt.check_password_hash(user.password, login_form.login_password.data):
+                error='Incorrect Password'
+
+        if error is None:
+            session.clear()
+            session['user_id'] = user['id'] #add user id on session
+            return redirect(url_for('/'))
+
+    return render_template('login.html', error=error)
+
+@app.before_request
+def load_logged_in_user():
+    user_id = session.get('user_id')
+    if user_id is None:
+        g.user = None
+    else:
+        g.user = dbSession.execute(
+            "SELECT * FROM users WHERE id = :id",
+            { "id": user_id }
+        ).fetchone()
+
+@app.route('/logout')
 def logout():
-    logout_user()
-    return redirect(url_for('home'))
+    session.clear()
+    return redirect(url_for('/'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

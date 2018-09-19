@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    CS50 Harvard Project 1
+{% endblock %}
+
+{% block body %}
+    <div class="container reg-container">
+        <div class="row" style="height:100%;width:100%;">
+            <div class="col-12" style="height:100%;width:100%;">
+                <div class="reg-form d-flex flex-column justify-content-center align-items-center" style="height:100%;width:100%;">
+                    <div class="d-flex flex-column align-items-center justify-content-center p-4" style="border:1px solid #CED4DA;">
+                        <div class="alert alert-success" role="alert">
+                            Registration Successful
+                        </div>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}" role="alert">{{ message }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        <h4 class="mb-3">Register</h4>
+                        <form id="regForm">
+                            {{ reg_form.hidden_tag() }}
+                            <fieldset class="form-group" style="margin-bottom:-16px;">
+                                <div class="form-group">
+                                    {{ reg_form.username(class="form-control form-control-sm", Placeholder="Username") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ reg_form.email(class="form-control form-control-sm", Placeholder="Email") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ reg_form.password(class="form-control form-control-sm", Placeholder="Password") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ reg_form.confirm_password(class="form-control form-control-sm", Placeholder="Confirm Password") }}
+                                </div>
+                                <div class="form-group d-flex justify-content-center">
+                                    <input type="submit" class="w-50 btn btn-primary btn-sm submit-btn" value="Signup">
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
