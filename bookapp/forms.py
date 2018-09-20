@@ -9,16 +9,23 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    
+    submit = SubmitField('Sign Up')
+
     def validate_username(self, username):
-        user = dbSession.query(User).filter(User.username == username.data).first()
+        user = dbSession.execute(
+            "SELECT * FROM users WHERE username = :username",
+            {"username": username.data}
+        ).fetchone()
         if user:
-            raise ValidationError('Username already taken. Please choose a different one.')
+            raise ValidationError('Username already taken.')
 
     def validate_email(self, email):
-        user = dbSession.query(User).filter(User.email == email.data).first()
+        user = dbSession.execute(
+            "SELECT * FROM users WHERE email = :email",
+            {"email": email.data}
+        ).fetchone()
         if user:
-            raise ValidationError('Email already taken. Please choose a different one.')
+            raise ValidationError('Email already taken.')
 
 class LoginForm(FlaskForm):
     login_email = StringField('Email', validators=[DataRequired(), Email()])

@@ -15,25 +15,15 @@ def register():
     message = None
     reg_form = RegistrationForm()
     if request.method == 'POST':
-        if dbSession.execute(
-            "SELECT * FROM users WHERE email = :email",
-            {"email": reg_form.email.data}
-        ).fetchone() is not None:
-            error = 'Email is already registered.'
-        elif dbSession.execute(
-            "SELECT * FROM users WHERE username = :username",
-            {"username": reg_form.username.data}
-        ).fetchone() is not None:
-            error = 'Username is already registered.'
-        elif reg_form.validate_on_submit():
+        if reg_form.validate_on_submit():
             hashed_password = bcrypt.generate_password_hash(reg_form.password.data).decode('utf-8')
             dbSession.execute(
                 "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)",
                 {"username": reg_form.username.data, "email":  reg_form.email.data, "password": hashed_password}
             )
             dbSession.commit()
-            flash(u'Registration Successful', 'success')
-        flash(error, 'danger')
+            flash('Registration Successful', 'success')
+
     return render_template('register.html',  reg_form=reg_form)
 
 @app.route("/login", methods=['post', 'get'])
