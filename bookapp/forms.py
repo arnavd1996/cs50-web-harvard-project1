@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from bookapp import dbSession
+from bookapp import dbSession, bcrypt
 from bookapp.models import User
 
 class RegistrationForm(FlaskForm):
@@ -28,6 +28,25 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Email already taken.')
 
 class LoginForm(FlaskForm):
-    login_email = StringField('Email', validators=[DataRequired(), Email()])
-    login_password = PasswordField('Password', validators=[DataRequired()])
-    login_submit = SubmitField('Login')
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
+    def validate_email(self, email):
+        user = dbSession.execute(
+            "SELECT * FROM users WHERE email = :email",
+            {"email": email.data}
+        ).fetchone()
+        if user is None:
+            raise ValidationError('Incorrect Email.')
+    def validate(self):
+        if not super(LoginForm, self).validate():
+            return False
+        user = dbSession.execute(
+            "SELECT * FROM users WHERE email = :email",
+            {"email": self.email.data}
+        ).fetchone()
+        if not bcrypt.check_password_hash(user.password, self.password.data):
+            self.password.errors.append('Incorrect Password.')
+            return False
+        return True

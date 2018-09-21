@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    CS50 Harvard Project 1
+{% endblock %}
+
+{% block body %}
+    <div class="container reg-container">
+        <div class="row" style="height:100%;width:100%;">
+            <div class="col-12" style="height:100%;width:100%;">
+                <div class="reg-form d-flex flex-column justify-content-center align-items-center" style="height:100%;width:100%;">
+                    <div class="d-flex flex-column align-items-center justify-content-center p-4" style="border:1px solid #CED4DA;">
+                        <div id="regSuccess" class="ml-3 alert alert-success" role="alert" style="display:none;"></div>
+                        <h4 class="mb-3">Register</h4>
+                        <form id="loginForm">
+                            {{ login_form.hidden_tag() }}
+                            <fieldset class="form-group" style="margin-bottom:-16px;">
+                                <div class="form-group">
+                                    {{ login_form.email(class="form-control form-control-sm", Placeholder="Email") }}
+                                </div>
+                                <div class="form-group">
+                                    {{ login_form.password(class="form-control form-control-sm", Placeholder="Password") }}
+                                </div>
+                                <div class="form-group d-flex justify-content-center">
+                                    <input type="submit" id="submit" class="w-50 btn btn-primary btn-sm submit-btn" value="Signup"/>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

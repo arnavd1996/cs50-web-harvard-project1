@@ -8,12 +8,18 @@ Base.metadata.create_all(engine)
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('index.html')
+    reg_form = RegistrationForm()
+    login_form = LoginForm()
+    return render_template('index.html', reg_form=reg_form, login_form=login_form)
 
 @app.route('/register', methods=['post', 'get'])
 def register():
     message = None
     reg_form = RegistrationForm()
+    login_form = LoginForm()
+    if request.method == 'GET':
+        return render_template('register.html',  reg_form=reg_form, login_form=login_form)
+
     if request.method == 'POST':
         if reg_form.validate_on_submit():
             hashed_password = bcrypt.generate_password_hash(reg_form.password.data).decode('utf-8')
@@ -22,32 +28,27 @@ def register():
                 {"username": reg_form.username.data, "email":  reg_form.email.data, "password": hashed_password}
             )
             dbSession.commit()
-            flash('Registration Successful', 'success')
-
-    return render_template('register.html',  reg_form=reg_form)
+            return jsonify({'success': 'Registration Successful'})
+    return jsonify({'errors': reg_form.errors})
 
 @app.route("/login", methods=['post', 'get'])
 def login():
     login_form = LoginForm()
+    reg_form = RegistrationForm()
+    if request.method == 'GET':
+        return render_template('login.html', login_form=login_form,  reg_form=reg_form)
+
     if request.method == 'POST':
-        error = None
         user = dbSession.execute(
             "SELECT * FROM users WHERE email = :email",
-            {"email": login_form.login_email.data}
+            {"email": login_form.email.data}
         ).fetchone()
 
         if login_form.validate_on_submit():
-            if user is None:
-                error='Incorrect Username'
-            elif not bcrypt.check_password_hash(user.password, login_form.login_password.data):
-                error='Incorrect Password'
-
-        if error is None:
             session.clear()
             session['user_id'] = user['id'] #add user id on session
-            return redirect(url_for('/'))
-
-    return render_template('login.html', error=error)
+            return jsonify({'success': 'Login Successful'})
+    return jsonify({'errors': login_form.errors})
 
 @app.before_request
 def load_logged_in_user():
@@ -63,7 +64,7 @@ def load_logged_in_user():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('/'))
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':

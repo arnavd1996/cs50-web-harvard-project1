@@ -7,31 +7,31 @@
     </head>
     <body>
         <header class="pt-2 pb-3">
-            <nav class="navbar navbar-expand-lg navbar-light">
-                <div class="container">
-                  <a class="navbar-brand" href="#">Book App</a>
-                  <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                  </button>
-                  <div class="navbar-collapse collapse" id="navbarsExample07">
-                    <ul class="navbar-nav mr-auto">
-                      <!-- <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                      </li> -->
-                      <form class="form-inline my-md-0">
-                        <input class="form-control form-control-sm" type="text" placeholder="Search" aria-label="Search">
-                      </form>
-                    </ul>
-                    {% if g.user %}
-                        <span class="nav-item nav-link"> {{ g.user['username'] }} </span>
-                        <a class="nav-item nav-link" href="{{ url_for('logout') }}"> Logout </a>
-                    {% else %}
-                        <a class="nav-item nav-link" href="{{ url_for('register') }}"> Register </a>
-                        <a class="nav-item nav-link" href="{{ url_for('logout') }}"> Log In </a>
-                    {% endif %}
-                  </div>
-                </div>
-              </nav>
+          <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+              <a class="navbar-brand" href="#">Book App</a>
+              <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="navbar-collapse collapse" id="navbarsExample07">
+                <ul class="navbar-nav mr-auto">
+                  <!-- <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                  </li> -->
+                  <form class="form-inline my-md-0">
+                    <input class="form-control form-control-sm" type="text" placeholder="Search" aria-label="Search">
+                  </form>
+                </ul>
+                {% if g.user %}
+                    <span class="nav-item nav-link"> {{ g.user['username'] }} </span>
+                    <a class="nav-item nav-link" href="{{ url_for('logout') }}"> Logout </a>
+                {% else %}
+                    <a class="nav-item nav-link" href="{{ url_for('register') }}"> Register </a>
+                    <a class="nav-item nav-link" href="{{ url_for('login') }}"> Log In </a>
+                {% endif %}
+              </div>
+            </div>
+          </nav>
         </header>
         {% block body %}
         {% endblock %}
@@ -39,4 +39,84 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script>
+      $(document).ready(function() {
+        $('#regForm').submit(function(e) {
+          e.preventDefault();
+          $("#submit").attr("disabled", true); // request indicator
+          $("#regForm input[id]") // find spans with ID attribute
+            .map(function() { return this.id}) // convert to set of IDs
+            .get()
+            .forEach(function(formId) {
+              $(`#${formId}`).removeClass('is-invalid') 
+              $(`.${formId}-invalid-feedback`).remove();
+            })
+          $.ajax({
+            type: "POST",
+            url:  "{{ url_for('register') }}",
+            beforeSend: function(xhr, settings) { 
+              // Inject our CSRF token into our AJAX request.
+              if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ reg_form.csrf_token._value() }}")
+              }
+            },
+            data: $('#regForm').serialize(), // serializes the forms' elements.
+            success: function(data) {
+              $("#submit").attr("disabled", false);
+              console.log(data)
+              if(data.errors) {
+                Object.getOwnPropertyNames(data.errors).forEach(function(err) {
+                  $(`#${err}`).addClass('is-invalid')
+                  $(`<div class='${err}-invalid-feedback invalid-feedback'> </div>`).insertAfter(`#${err}`);
+                  data.errors[err].forEach(function(errmessage) {
+                    $(`.${err}-invalid-feedback`).append(`<span>${errmessage}</span>`);
+                  });
+                })
+                $('#regSuccess').hide();
+              } else {
+                $('#regSuccess').text(`Created Account for ${$('#username').val()}!`).show();
+                $('#regForm')[0].reset(); // https://stackoverflow.com/questions/16452699/how-to-reset-a-form-using-jquery-with-reset-method
+              }
+            }
+          });
+        });
+        $('#loginForm').submit(function(e) {
+          e.preventDefault();
+          $("#submit").attr("disabled", true); // request indicator
+          $("#loginForm input[id]") // find spans with ID attribute
+            .map(function() { return this.id}) // convert to set of IDs
+            .get()
+            .forEach(function(formId) {
+              $(`#${formId}`).removeClass('is-invalid') 
+              $(`.${formId}-invalid-feedback`).remove();
+            })
+          $.ajax({
+            type: "POST",
+            url:  "{{ url_for('login') }}",
+            beforeSend: function(xhr, settings) { 
+              // Inject our CSRF token into our AJAX request.
+              if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", "{{ login_form.csrf_token._value() }}")
+              }
+            },
+            data: $('#loginForm').serialize(), // serializes the forms' elements.
+            success: function(data) {
+              $("#submit").attr("disabled", false);
+              console.log(data)
+              if(data.errors) {
+                Object.getOwnPropertyNames(data.errors).forEach(function(err) {
+                  $(`#${err}`).addClass('is-invalid')
+                  $(`<div class='${err}-invalid-feedback invalid-feedback'> </div>`).insertAfter(`#${err}`);
+                  data.errors[err].forEach(function(errmessage) {
+                    $(`.${err}-invalid-feedback`).append(`<span>${errmessage}</span>`);
+                  });
+                })
+              } else {
+                window.location.replace("/");
+              }
+            }
+          });
+        })
+      });
+    </script>
 </html>
