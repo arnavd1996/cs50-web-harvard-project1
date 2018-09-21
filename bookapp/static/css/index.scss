@@ -18,10 +18,8 @@ header {
     #{$property}: -webkit-calc(#{$expression});
     #{$property}: calc(#{$expression});
 }
-.content-container, .content-row {
-    @extend %h100;
-}
-.reg-container {
+
+.content-container {
     @include calc( height, '100% - 82px')
 }
 

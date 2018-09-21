@@ -14,11 +14,7 @@ header {
   margin-top: 33px;
 }
 
-.content-container, .content-row {
-  height: 100% !important;
-}
-
-.reg-container {
+.content-container {
   height: -moz-calc(100% - 82px);
   height: -webkit-calc(100% - 82px);
   height: calc(100% - 82px);

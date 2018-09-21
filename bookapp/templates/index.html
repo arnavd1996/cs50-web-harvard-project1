@@ -5,10 +5,18 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container content-container">
-        <div class="row content-row">
-            <div class="col-12">
-                books!
+<div class="container content-container">
+        <div class="row" style="height:100%;width:100%;">
+            <div class="col-12" style="height:100%;width:100%;">
+                <div class="reg-form d-flex flex-column justify-content-center align-items-center" style="height:100%;width:100%;">
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                        <h4 class="mb-3">Search Books</h4>
+                        <form id="searchBooks">
+                            {{ search_form.hidden_tag() }}
+                            {{ search_form.searchText(class="form-control form-control-lg", Placeholder="Search Books") }}
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

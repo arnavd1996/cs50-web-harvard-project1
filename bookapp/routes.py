@@ -1,6 +1,6 @@
 from flask import Flask, session, render_template, url_for, flash, redirect, jsonify, request, g, session 
 from bookapp import app, Base, engine, dbSession, bcrypt
-from bookapp.forms import RegistrationForm, LoginForm
+from bookapp.forms import RegistrationForm, LoginForm, SearchForm
 from bookapp.models import User, Review, Book
 # 2 - generate database schema
 Base.metadata.create_all(engine)
@@ -10,15 +10,17 @@ Base.metadata.create_all(engine)
 def home():
     reg_form = RegistrationForm()
     login_form = LoginForm()
-    return render_template('index.html', reg_form=reg_form, login_form=login_form)
+    search_form = SearchForm()
+    return render_template('index.html', reg_form=reg_form, login_form=login_form, search_form=search_form)
 
 @app.route('/register', methods=['post', 'get'])
 def register():
     message = None
     reg_form = RegistrationForm()
     login_form = LoginForm()
+    search_form = SearchForm()
     if request.method == 'GET':
-        return render_template('register.html',  reg_form=reg_form, login_form=login_form)
+        return render_template('register.html',  reg_form=reg_form, login_form=login_form, search_form=search_form)
 
     if request.method == 'POST':
         if reg_form.validate_on_submit():
@@ -35,8 +37,10 @@ def register():
 def login():
     login_form = LoginForm()
     reg_form = RegistrationForm()
+    search_form = SearchForm()
+
     if request.method == 'GET':
-        return render_template('login.html', login_form=login_form,  reg_form=reg_form)
+        return render_template('login.html', login_form=login_form,  reg_form=reg_form, search_form=search_form)
 
     if request.method == 'POST':
         user = dbSession.execute(
@@ -66,6 +70,21 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@app.route("/search", methods=['get', 'post'])
+def search():
+    if request.method == 'POST':
+        search_form = SearchForm()
+        print(search_form.searchText.data)
+        result = dbSession.execute(
+            "SELECT * FROM books WHERE (isbn LIKE '%:text%') OR (title LIKE '%:text%') OR (author LIKE '%:text%') LIMIT 10",
+            { "text": search_form.searchText.data }
+        ).fetchall()
+        print(result)
+        data = []
+        for row in result:
+            data.append(dict(row))
+        print(f)
+        return jsonify({ 'data': data })
 
 if __name__ == '__main__':
     app.run(debug=True)

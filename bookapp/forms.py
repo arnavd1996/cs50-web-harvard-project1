@@ -50,3 +50,6 @@ class LoginForm(FlaskForm):
             self.password.errors.append('Incorrect Password.')
             return False
         return True
+
+class SearchForm(FlaskForm):
+    searchText = StringField('Search Books')

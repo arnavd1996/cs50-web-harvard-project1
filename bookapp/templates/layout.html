@@ -112,11 +112,33 @@
                   });
                 })
               } else {
-                window.location.replace("/");
+                window.location.replace("/home");
               }
             }
           });
-        })
+        });
+        var changeTimer = false;
+        $('#searchText').on('input', function(e) {
+          e.preventDefault();
+          if(changeTimer !== false) clearTimeout(changeTimer);
+            console.log('search text!')
+            changeTimer = setTimeout(function(){
+            $.ajax({
+              type: "POST",
+              url:  "{{ url_for('search') }}",
+              beforeSend: function(xhr, settings) { 
+                // Inject our CSRF token into our AJAX request.
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", "{{ search_form.csrf_token._value() }}")
+                }
+              },
+              success: function(data) {
+                console.log('data! = ', data);
+              }
+            });
+              changeTimer = false;
+          },3000);
+        });
       });
     </script>
 </html>
