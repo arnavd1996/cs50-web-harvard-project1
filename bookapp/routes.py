@@ -73,17 +73,16 @@ def logout():
 @app.route("/search", methods=['get', 'post'])
 def search():
     if request.method == 'POST':
-        search_form = SearchForm()
-        print(search_form.searchText.data)
+        text = request.form.get("searchText")
+        print(text)
         result = dbSession.execute(
-            "SELECT * FROM books WHERE (isbn LIKE '%:text%') OR (title LIKE '%:text%') OR (author LIKE '%:text%') LIMIT 10",
-            { "text": search_form.searchText.data }
+            "SELECT * FROM books WHERE (LOWER(isbn) LIKE LOWER(:text)) OR (LOWER(title) LIKE LOWER(:text)) OR (author LIKE LOWER(:text)) LIMIT 10",
+            { "text": '%' + text + '%'} 
         ).fetchall()
         print(result)
         data = []
         for row in result:
             data.append(dict(row))
-        print(f)
         return jsonify({ 'data': data })
 
 if __name__ == '__main__':

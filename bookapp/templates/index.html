@@ -6,14 +6,16 @@
 
 {% block body %}
 <div class="container content-container">
-        <div class="row" style="height:100%;width:100%;">
+        <div class="row" style="height:100%;width:100%; padding-bottom:10%;">
             <div class="col-12" style="height:100%;width:100%;">
                 <div class="reg-form d-flex flex-column justify-content-center align-items-center" style="height:100%;width:100%;">
-                    <div class="d-flex flex-column align-items-center justify-content-center">
+                    <div class="d-flex flex-column align-items-center justify-content-center" style="width:100%;">
                         <h4 class="mb-3">Search Books</h4>
-                        <form id="searchBooks">
+                        <form autocomplete="off" id="searchBooks" style="width:100%;" class="d-flex justify-content-center">
                             {{ search_form.hidden_tag() }}
-                            {{ search_form.searchText(class="form-control form-control-lg", Placeholder="Search Books") }}
+                            <div class="autocomplete" style="width:50%;">
+                                {{ search_form.searchText(class="form-control form-control-lg", Placeholder="Search Books") }}
+                            </div>
                         </form>
                     </div>
                 </div>
