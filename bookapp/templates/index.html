@@ -12,9 +12,9 @@
                     <div class="d-flex flex-column align-items-center justify-content-center" style="width:100%;">
                         <h4 class="mb-3">Search Books</h4>
                         <form autocomplete="off" id="searchBooks" style="width:100%;" class="d-flex justify-content-center">
-                            {{ search_form.hidden_tag() }}
                             <div class="autocomplete" style="width:50%;">
-                                {{ search_form.searchText(class="form-control form-control-lg", Placeholder="Search Books") }}
+                                <input type="text" id="searchText" name="searchText" class="form-control form-control-lg" Placeholder="Search Books" />
+                                <div id="loading-indicator" style="display:none;"></div>
                             </div>
                         </form>
                     </div>

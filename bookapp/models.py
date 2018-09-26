@@ -28,6 +28,7 @@ class Review(Base):
     id = Column(Integer, primary_key=True)
     content = Column(String)
     date_posted = Column(Date)
+    rating = Column(Integer)
     user_id = Column(Integer, ForeignKey('users.id'))
     book_id = Column(Integer, ForeignKey('books.id'))
 
@@ -36,6 +37,7 @@ class Review(Base):
         self.content = content
         self.date_posted = date_posted
         self.user_id = user_id
+        self.rating = rating
         self.book_id = book_id
 
 class Book(Base):

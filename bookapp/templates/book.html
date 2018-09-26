@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    CS50 Harvard Project 1
+{% endblock %}
+
+{% block body %}
+    <div class="container content-container">
+        <div class="row" style="height:100%;width:100%;">
+            <div class="col-12" style="height:100%;width:100%;">
+                <div class="reg-form d-flex flex-column justify-content-center align-items-center" style="height:100%;width:100%;">
+                    <div class="d-flex flex-column align-items-center justify-content-center p-4" style="border:1px solid #CED4DA;">
+                        <div id="regSuccess" class="ml-3 alert alert-success" role="alert" style="display:none;"></div>
+                        <div class="mb-2 book-title d-flex flex-column justify-content-center align-items-center">
+                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                {{ book.title }}
+                            </h4>
+                            <span>TITLE</span>
+                        </div>
+                        <div class="mb-2 book-isbn d-flex flex-column justify-content-center align-items-center">
+                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                {{ book.isbn }}
+                            </h4>
+                            <span>ISBN</span>
+                        </div>
+                        <div class="mb-2 book-author d-flex flex-column justify-content-center align-items-center">
+                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                {{ book.author }}
+                            </h4>
+                            <span>AUTHOR</span>
+                        </div>
+                        <div class="mb-2 book-publication-year d-flex flex-column justify-content-center align-items-center">
+                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                {{ book.publication_year }}
+                            </h4>
+                            <span>PUBLICATION YEAR</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

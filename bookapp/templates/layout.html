@@ -119,8 +119,6 @@
           });
         });
         function autocomplete(inp) {
-          /*the autocomplete function takes two arguments,
-          the text field element and an array of possible autocompleted values:*/
           var currentFocus;
           /*execute a function when someone writes in the text field:*/
           var changeTimer = false;
@@ -133,15 +131,15 @@
                   url:  "{{ url_for('search') }}",
                   data: $('#searchBooks').serialize(),
                   beforeSend: function(xhr, settings) { 
-                    // Inject our CSRF token into our AJAX request.
-                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !self.crossDomain) {
-                      xhr.setRequestHeader("X-CSRFToken", "{{ search_form.csrf_token._value() }}")
-                    }
+                    $('#loading-indicator').show().text('Searching books...');
                   },
                   success: function(res) {
                     var arr = []    
+                    $('#loading-indicator').hide();
+                    if (!res.data.length) $('#loading-indicator').show().text('No Found');
                     res.data.forEach(function(item) {
                       var txt=""
+                      var obj;
                       function capitalize(string) {
                         return string.toUpperCase();
                       }
@@ -149,7 +147,7 @@
                         if (k === 'id' || k === 'publication_year') return false
                         txt = txt.concat(` ${capitalize(k)}: ${item[k]} `)
                       })
-                      arr.push(txt.trim())
+                      arr.push({'isbn': item.isbn, data: txt.trim()})
                       var a, b, i, val = self.value;
                       /*close any already open lists of autocompleted values*/
                       closeAllLists();
@@ -158,27 +156,30 @@
                       /*create a DIV element that will contain the items (values):*/
                       a = document.createElement("DIV");
                       a.setAttribute("id", self.id + "autocomplete-list");
-                      a.setAttribute("class", "autocomplete-items");
+                      a.setAttribute("class", "autocomplete-items d-flex flex-column");
                       /*append the DIV element as a child of the autocomplete container:*/
                       self.parentNode.appendChild(a);
                       /*for each item in the array...*/
                       for (i = 0; i < arr.length; i++) {
-                        if (arr[i].toLocaleLowerCase().indexOf(val.toLocaleLowerCase()) !== -1) {
+                        if (arr[i].data.toLocaleLowerCase().indexOf(val.toLocaleLowerCase()) !== -1) {
                           /*create a DIV element for each matching element:*/
-                          b = document.createElement("DIV");
+                          b = document.createElement("a");
                           /*make the matching letters bold:*/
-                          b.innerHTML = arr[i].replace(
+                          b.innerHTML = arr[i].data.replace(
                             new RegExp(
                               "\\b(ISBN|TITLE|AUTHOR|PUBLICATION YEAR)\\b|" + val.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), "gi"
                             ), 
                             (x,y) => y ? y : `<strong>${x}</strong>`
                           ) // https://stackoverflow.com/questions/52469373/regexp-to-not-match-on-specific-texts-on-a-sentence/52469607#52469607
                           /*insert a input field that will hold the current array item's value:*/
-                          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                          b.innerHTML += "<input type='hidden' value='" + arr[i].isbn + "'>";
                           /*execute a function when someone clicks on the item value (DIV element):*/
+                          var innerText = arr[i].data;
+                          var innerIsbn = arr[i].isbn;
+                          b.setAttribute('href', "{{ url_for('book', isbn='bookIsbn') }}".replace("bookIsbn", innerIsbn))
                           b.addEventListener("click", function(e) {
                               /*insert the value for the autocomplete text field:*/
-                              inp.value = self.getElementsByTagName("input")[0].value;
+                              inp.value = innerText;
                               /*close the list of autocompleted values,
                               (or any other open lists of autocompleted values:*/
                               closeAllLists();
@@ -190,7 +191,7 @@
                   }
                 });
                 changeTimer = false;
-              },3000);
+              },1000);
           });
           /*execute a function presses a key on the keyboard:*/
           inp.addEventListener("keydown", function(e) {
