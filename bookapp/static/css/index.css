@@ -94,5 +94,17 @@ input[type=submit] {
   background-color: DodgerBlue !important; 
   color: #ffffff; 
 }
+/* star rating */
+
+.ratings_stars {
+  background: url('../images/star_empty.png') no-repeat;
+  float:      left;
+  height:     28px;
+  padding:    2px;
+  width:      32px;
+}
+.ratings_over {
+  background: url('../images/star_highlight.png') no-repeat;
+}
 
 /*# sourceMappingURL=index.css.map */

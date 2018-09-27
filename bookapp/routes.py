@@ -90,11 +90,21 @@ def book(isbn):
     login_form = LoginForm()
     reg_form = RegistrationForm()
     if request.method == 'GET':
+        voted = None
+        userId = session.get('user_id')
         book = dbSession.execute(
             "SELECT * FROM books WHERE isbn = :isbn",
             { "isbn": isbn }
         ).fetchone()
-        return render_template("book.html", book=book, login_form=login_form,  reg_form=reg_form)
+        if book is not None:
+            user = dbSession.execute(
+                "SELECT * FROM reviews WHERE book_id = :book_id AND user_id = :user_id",
+                { "book_id": book['id'], "user_id": userId }
+            ).fetchone()
+            print(user)
+            voted=bool(user)
+            print(voted)
+        return render_template("book.html", book=book, voted=voted, login_form=login_form,  reg_form=reg_form)
     # if request.method == 'POST':
     #     rating = request.form.get("rating")
     #     content = request.form.get("content")
@@ -107,6 +117,22 @@ def book(isbn):
     #     )
     #     dbSession.commit()
     #     return jsonify({ 'data': 'a'})
+
+@app.route("/addreview", methods=['get', 'post'])
+def addreview():
+    if request.method == 'POST':
+        req_data = request.get_json()
+        rate = req_data['rate']
+        text = req_data['text']
+        userId = req_data['userId']
+        bookId = req_data['bookId']
+        dt = datetime.datetime.now()
+        dbSession.execute(
+            "INSERT INTO reviews (content, date_posted, user_id, book_id, rating) VALUES (:content, :date_posted, :user_id, :book_id, :rating)",
+            {"content": text, "date_posted":  dt, "user_id": userId, "book_id": bookId, "rating": rate }
+        )
+        dbSession.commit()
+        return jsonify({'OK': 'SUCCESS'})
 
 # @app.route("/api/<int:isbn>")
 # def flight(isbn):

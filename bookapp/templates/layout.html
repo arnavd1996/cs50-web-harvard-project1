@@ -44,6 +44,67 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script>
       $(document).ready(function() {
+        // // star rating
+        (function() { // use iife to not pollute global variables, it's discouraged
+          var currentRate = 0;
+          $('.ratings_stars').hover(
+            // Handles the mouseover
+            function() {
+              $(this).prevAll().addClass('ratings_over');
+              $(this).addClass('ratings_over');
+              $(this).nextAll().removeClass('ratings_vote'); 
+            },
+            // Handles the mouseout
+            function() {
+              $(this).prevAll().removeClass('ratings_over');
+              $(this).removeClass('ratings_over');
+            }
+          );
+          $('.ratings_stars').click(function() {
+            $(this).prevAll().unbind('mouseenter mouseleave');//remove hover effects
+            $(this).nextAll().unbind('mouseenter mouseleave');
+            $(this).unbind('mouseenter mouseleave')
+            var widget = this;
+            var widgetRate = $(widget).attr('rate')
+            if (currentRate < widgetRate) {
+              $(this).prevAll().addClass('ratings_over');
+              $(this).addClass('ratings_over');
+              $(this).nextAll().removeClass('ratings_vote'); 
+            } else {
+              $(this).addClass('ratings_over');
+              $(this).nextAll().removeClass('ratings_over'); 
+            }
+            currentRate = widgetRate;
+          });
+          $('#reviewForm').submit(function(e) {
+            e.preventDefault();
+            $("#reviewSubmit").attr("disabled", true); // request indicator
+            var text =  $('#comment').val()
+            var userId = "{{ g.user['id'] }}"
+            var bookId = "{{ book['id'] if book else '' }}"
+            $.ajax({
+              type: "POST",
+              contentType: "application/json", // important!
+              url:  "{{ url_for('addreview') }}",
+              data: JSON.stringify({
+                rate: currentRate,
+                text: text,
+                userId: userId,
+                bookId: bookId,
+              }),
+              success: function(data) {
+                $("#reviewSubmit").attr("disabled", false);
+                // $("#submit").attr("disabled", false);
+                $('#revSuccess').text('You have successfully reviewed this book').show();
+                $('#reviewForm').removeClass('d-flex');
+                $('#reviewForm').css('display', 'none');
+                $('.add-review').css('display', 'none');
+                console.log('review data!', data)
+              }
+            });
+          })
+        })()
+        // end of star rating
         $('#regForm').submit(function(e) {
           e.preventDefault();
           $("#submit").attr("disabled", true); // request indicator
@@ -119,6 +180,7 @@
           });
         });
         function autocomplete(inp) {
+          if(!inp) return false
           var currentFocus;
           /*execute a function when someone writes in the text field:*/
           var changeTimer = false;
