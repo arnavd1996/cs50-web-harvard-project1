@@ -79,10 +79,10 @@ def search():
             "SELECT * FROM books WHERE (LOWER(isbn) LIKE LOWER(:text)) OR (LOWER(title) LIKE LOWER(:text)) OR (author LIKE LOWER(:text)) LIMIT 10",
             { "text": '%' + text + '%'} 
         ).fetchall()
-        print(result)
         data = []
         for row in result:
             data.append(dict(row))
+            print(data)
         return jsonify({ 'data': data })
 
 @app.route("/book/<isbn>", methods=['get', 'post'])
@@ -92,19 +92,33 @@ def book(isbn):
     if request.method == 'GET':
         voted = None
         userId = session.get('user_id')
+        reviews = None
         book = dbSession.execute(
             "SELECT * FROM books WHERE isbn = :isbn",
             { "isbn": isbn }
         ).fetchone()
-        if book is not None:
-            user = dbSession.execute(
-                "SELECT * FROM reviews WHERE book_id = :book_id AND user_id = :user_id",
-                { "book_id": book['id'], "user_id": userId }
-            ).fetchone()
+
+        user = dbSession.execute(
+            "SELECT * FROM reviews WHERE book_id = :book_id AND user_id = :user_id",
+            { "book_id": book['id'], "user_id": userId }
+        ).fetchone()
+
+        if user is not None:
             print(user)
             voted=bool(user)
             print(voted)
-        return render_template("book.html", book=book, voted=voted, login_form=login_form,  reg_form=reg_form)
+
+        if book is not None:
+            reviews = dbSession.execute(
+                "SELECT u.username, r.* FROM users AS u JOIN reviews AS r ON u.id = r.user_id WHERE book_id = :book_id",
+                { "book_id": book['id'] }
+            ).fetchall()
+            reviewsData = []
+            for row in reviews:
+                reviewsData.append(dict(row))
+            print(reviewsData)
+
+        return render_template("book.html", book=book, reviews=reviewsData, voted=voted, login_form=login_form,  reg_form=reg_form)
     # if request.method == 'POST':
     #     rating = request.form.get("rating")
     #     content = request.form.get("content")

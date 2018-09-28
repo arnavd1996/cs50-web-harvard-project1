@@ -53,6 +53,18 @@
                                 <input type="submit" id="reviewSubmit" class="btn btn-primary btn-sm w-50 m-auto" value="Submit"/>
                             </form>
                         {% endif %}
+                        <div>
+                            {% for review in reviews %}
+                            <div id="review{{review.id}}">
+                                {{ review.content }} by {{ review.username }}
+                                    -
+                                <p id="timeDifferenceElement{{ review.id }}"></p>
+                                <script type="text/javascript">
+                                    timeDifferenceForDate( '{{ review.id }}', '{{ review.date_posted }}' );
+                                </script>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
