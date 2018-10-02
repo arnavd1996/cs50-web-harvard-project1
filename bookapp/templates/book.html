@@ -7,34 +7,41 @@
 {% block body %}
     <div class="container content-container">
         <div class="row" style="height:100%;width:100%;">
-            <div class="col-12" style="height:100%;width:100%;">
-                <div class="reg-form d-flex flex-column justify-content-center align-items-center my-3" style="height:100%;width:300px;margin-left:auto;margin-right:auto;border:1px solid #CED4DA;">
-                    <div class="d-flex flex-column align-items-center justify-content-center px-4 pb-4">
-                        <div class="w-100 mb-2 book-title d-flex flex-column justify-content-center align-items-center">
-                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
-                                {{ book.title }}
-                            </h4>
-                            <span>TITLE</span>
-                        </div>
-                        <div class="w-100 mb-2 book-isbn d-flex flex-column justify-content-center align-items-center">
-                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
-                                {{ book.isbn }}
-                            </h4>
-                            <span>ISBN</span>
-                        </div>
-                        <div class="w-100 mb-2 book-author d-flex flex-column justify-content-center align-items-center">
-                            <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
-                                {{ book.author }}
-                            </h4>
-                            <span>AUTHOR</span>
-                        </div>
-                            <div class="w-100 mb-2 book-publication-year d-flex flex-column justify-content-center align-items-center">
+            <div class="d-flex">
+                <div class="goodreads-col">
+                    GOODREADS REVIEW DATA
+                </div>
+                <div class="book-col">
+                    <div class="reg-form d-flex flex-column justify-content-center align-items-center my-3" style="height:100%;width:300px;margin-left:auto;margin-right:auto;border:1px solid #CED4DA;">
+                        <div class="d-flex flex-column align-items-center justify-content-center px-4 pb-4">
+                            <div class="w-100 mb-2 book-title d-flex flex-column justify-content-center align-items-center">
                                 <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
-                                    {{ book.publication_year }}
+                                    {{ book.title }}
                                 </h4>
-                                <span>PUBLICATION YEAR</span>
+                                <span>TITLE</span>
                             </div>
+                            <div class="w-100 mb-2 book-isbn d-flex flex-column justify-content-center align-items-center">
+                                <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                    {{ book.isbn }}
+                                </h4>
+                                <span>ISBN</span>
+                            </div>
+                            <div class="w-100 mb-2 book-author d-flex flex-column justify-content-center align-items-center">
+                                <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                    {{ book.author }}
+                                </h4>
+                                <span>AUTHOR</span>
+                            </div>
+                                <div class="w-100 mb-2 book-publication-year d-flex flex-column justify-content-center align-items-center">
+                                    <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                        {{ book.publication_year }}
+                                    </h4>
+                                    <span>PUBLICATION YEAR</span>
+                                </div>
+                        </div>
                     </div>
+                </div>
+                <div class="reviews-col">
                     <div class="review-section w-100 p-4" style="border-top:1px solid #CED4DA;">
                         {% if voted %}
                             <span>YOU ALREADY REVIEWED THIS BOOK</span>
@@ -53,18 +60,19 @@
                                 <input type="submit" id="reviewSubmit" class="btn btn-primary btn-sm w-50 m-auto" value="Submit"/>
                             </form>
                         {% endif %}
-                        <div>
+                        <div id="reviewsContainer">
                             {% for review in reviews %}
                             <div id="review{{review.id}}">
                                 {{ review.content }} by {{ review.username }}
                                     -
                                 <p id="timeDifferenceElement{{ review.id }}"></p>
                                 <script type="text/javascript">
-                                    timeDifferenceForDate( '{{ review.id }}', '{{ review.date_posted }}' );
+                                    timeDifferenceForDate( '{{ review.id }}', '{{ review.date_posted }}', 'fromScript' );
                                 </script>
                             </div>
                             {% endfor %}
                         </div>
+                        <div class="m-auto d-flex justify-content-center">{{ pagination.links }}</div>
                     </div>
                 </div>
             </div>

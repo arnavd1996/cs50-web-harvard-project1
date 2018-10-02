@@ -1,12 +1,8 @@
 from datetime import datetime
-from bookapp import Base, login_manager, dbSession
+from bookapp import Base, dbSession
 from sqlalchemy import Column, String, Integer, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
-
-@login_manager.user_loader
-def loadUser(user_id):
-    return dbSession.query(User).get(int(user_id))
 
 class User(Base, UserMixin):
     __tablename__ = 'users'

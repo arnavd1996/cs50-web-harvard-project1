@@ -2,6 +2,7 @@
 <html>
     <head>
       <title>{% block title %}{% endblock %}</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css">
       <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
       <script type="text/javascript" src="{{ url_for('static', filename='js/timeDifference.js') }}"></script>
@@ -95,12 +96,14 @@
               }),
               success: function(data) {
                 $("#reviewSubmit").attr("disabled", false);
-                // $("#submit").attr("disabled", false);
                 $('#revSuccess').text('You have successfully reviewed this book').show();
                 $('#reviewForm').removeClass('d-flex');
                 $('#reviewForm').css('display', 'none');
                 $('.add-review').css('display', 'none');
-                console.log('review data!', data)
+                var revChild = document.createElement("DIV");
+                  revChild.setAttribute("id", `review${data.id}`);
+                  revChild.innerHTML = `${data.content} by ${data.username} - ${timeDifferenceForDate( false, `${data.date_posted}`, false )}`;
+                $('#reviewsContainer').prepend(revChild);
               }
             });
           })
