@@ -106,5 +106,9 @@ input[type=submit] {
 .ratings_over {
   background: url('../images/star_highlight.png') no-repeat;
 }
-
+.book-container {
+  display: grid;
+  grid-auto-rows: auto;
+  grid-template-columns: 30% 30% 30%;
+}
 /*# sourceMappingURL=index.css.map */
