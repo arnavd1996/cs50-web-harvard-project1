@@ -150,7 +150,10 @@ def book(isbn):
 
             for row in pagination_reviews:
                 reviewsData.append(dict(row))
-        
+            key = "TrD1hjMJeKCvkiU9xvh5Q"
+            goodreads_review_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={ "key": str(key), "isbns": str(isbn) }).json()
+            
+            print ("goodreads_review_data = {} ".format(goodreads_review_data['books']))
         dbSession.close()
         
         return render_template(
