@@ -8,12 +8,32 @@
     <div class="container content-container">
         <div class="row" style="height:inherit;width: inherit;">
             <div class="book-container my-3 justify-content-center" style="height:100%;width:100%;">
-                <div class="goodreads-col p-4" style="border-top: 1px solid #d4d4d4;border-left: 1px solid #d4d4d4;border-bottom: 1px solid #d4d4d4;">
+                <div class="goodreads-col p-4 d-flex flex-column align-content-center" style="border-top: 1px solid #d4d4d4;border-left: 1px solid #d4d4d4;border-bottom: 1px solid #d4d4d4;">
                     <h3 class="text-center"> Goodreads<br/> Review Data </h3>
+                    {% if goodreads_review_data %}
+                        <div class="w-100 py-5 d-flex flex-column justify-content-center align-self-center my-5 align-items-center">
+                            <div class="w-100 mb-2 d-flex flex-column justify-content-center align-items-center">
+                                <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                    {{ goodreads_review_data.average_rating }} out of 5
+                                </h4>
+                                <span>AVERAGE RATING</span>
+                            </div>
+                            <div class="w-100 mb-2 d-flex flex-column justify-content-center align-items-center">
+                                <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
+                                    {{ goodreads_review_data.work_ratings_count }}
+                                </h4>
+                                <span>WORK RATINGS COUNT</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-100 py-5 d-flex flex-column justify-content-center align-self-center my-5 align-items-center">
+                            <div>NOT AVAILABLE</div>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="book-col p-4  d-flex flex-column align-content-center" style="border:1px solid #CED4DA;">
                     <h3 class="text-center"> Book Details</h3>
-                    <div class="py-5 d-flex flex-column justify-content-center align-self-center my-auto align-items-center">
+                    <div class="py-5 w-100 d-flex flex-column justify-content-center align-self-center my-5 align-items-center">
                         <div class="w-100 mb-2 book-title d-flex flex-column justify-content-center align-items-center">
                             <h4 class="mb-0" style="border-bottom: 1px solid #d4d4d4;width: 100%;text-align: center;">
                                 {{ book.title }}
@@ -58,8 +78,8 @@
                                             <div rate="4" class="ratings_stars"></div>
                                             <div rate="5" class="ratings_stars"></div>
                                         </div>
-                                        <input type="text" name="comment" id="comment" class="my-3" style="border:1px solid #CED4DA;"/>
-                                        <input type="submit" id="reviewSubmit" class="btn btn-primary btn-sm w-50 m-auto" value="Submit"/>
+                                        <input type="text" placeholder="Atleast 10 characters" name="comment" id="comment" class="my-3" style="border:1px solid #CED4DA;"/>
+                                        <input type="submit" id="reviewSubmit" disabled=true class="btn btn-primary btn-sm w-50 m-auto" value="Submit"/>
                                     </form>
                                 </div>
                             {% endif %}
@@ -70,10 +90,11 @@
                         <div id="reviewsContainer" class="d-flex my-auto flex-column">
                             {% for review in reviews %}
                             <div id="review{{review.id}}">
-                                <span>
+                                <div class="d-flex flex-column">
                                     <strong>{{ review.username }}</strong>
-                                    {{ review.content }}
-                                </span>
+                                    <span><strong>{{ review.rating }}</strong> out of 5</span>
+                                    <span class="w-100" style="border-bottom: 1px solid #d4d4d4;">{{ review.content }}</span>
+                                </div>
                                 <p id="timeDifferenceElement{{ review.id }}"></p>
                                 <script type="text/javascript">
                                     timeDifferenceForDate( '{{ review.id }}', '{{ review.date_posted }}', 'fromScript' );

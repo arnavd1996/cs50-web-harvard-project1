@@ -64,7 +64,7 @@
             $(this).nextAll().unbind('mouseenter mouseleave');
             $(this).unbind('mouseenter mouseleave')
             var widget = this;
-            var widgetRate = $(widget).attr('rate')
+            var widgetRate = $(widget).attr('rate') // get rate attribute
             if (currentRate < widgetRate) {
               $(this).prevAll().addClass('ratings_over');
               $(this).addClass('ratings_over');
@@ -74,7 +74,21 @@
               $(this).nextAll().removeClass('ratings_over'); 
             }
             currentRate = widgetRate;
+            if (currentRate && $('#comment').val().length >= 10) {
+              $('#reviewSubmit').removeAttr('disabled');
+            } else {
+              $("#reviewSubmit").attr("disabled", true);
+            }
           });
+          
+          $('#comment').keyup(function() { // handle removing disabled attribute when user inputs
+            if (currentRate && $(this).val().length >= 10) {
+              $('#reviewSubmit').removeAttr('disabled');
+            } else {
+              $("#reviewSubmit").attr("disabled", true);
+            }
+          });
+
           $('#reviewForm').submit(function(e) {
             e.preventDefault();
             $("#reviewSubmit").attr("disabled", true); // request indicator
@@ -309,7 +323,7 @@
           }
           /*execute a function when someone clicks in the document:*/
           document.addEventListener("click", function (e) {
-              closeAllLists(e.target);
+            closeAllLists(e.target);
           });
         }
         autocomplete(document.getElementById("searchText"));

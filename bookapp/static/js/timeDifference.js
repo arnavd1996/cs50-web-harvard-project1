@@ -9,27 +9,27 @@ function timeDifference(current, previous) {
     var elapsed = current - previous
   
     if (elapsed < milliSecondsPerMinute / 3) {
-      return 'just now';
+      return 'Published just now';
     }
   
     else if (elapsed < milliSecondsPerHour) {
-      return Math.round(elapsed/milliSecondsPerMinute) + ' m';
+      return 'Published ' + Math.round(elapsed/milliSecondsPerMinute) + ' m ago';
     }
   
     else if (elapsed < milliSecondsPerDay ) {
-      return Math.round(elapsed/milliSecondsPerHour ) + ' h';
+      return 'Published ' + Math.round(elapsed/milliSecondsPerHour ) + ' h ago';
     }
   
     else if (elapsed < milliSecondsPerMonth) {
-      return Math.round(elapsed/milliSecondsPerDay) + ' d';
+      return 'Published ' + Math.round(elapsed/milliSecondsPerDay) + ' d ago';
     }
   
     else if (elapsed < milliSecondsPerYear) {
-      return Math.round(elapsed/milliSecondsPerMonth) + ' mon';
+      return 'Published ' + Math.round(elapsed/milliSecondsPerMonth) + ' mon ago';
     }
   
     else {
-      return Math.round(elapsed/milliSecondsPerYear ) + ' y';
+      return 'Published ' + Math.round(elapsed/milliSecondsPerYear ) + ' y ago';
     }
 }
 

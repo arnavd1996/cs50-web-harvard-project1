@@ -53,32 +53,3 @@ class LoginForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     searchText = StringField('Search Books', validators=[DataRequired()])
-
-# class ReviewForm(FlaskForm):
-#     rating = IntegerField('Rating', validators=[DataRequired()])
-#     content = StringField('Content', validators=[DataRequired(), Length(min=20, max=50)])
-#     book_id = request.form.get("book-id")
-#     user_id = session.get('user_id')
-#     date_posted = datetime.datetime.now()
-
-#     username = 
-#     email = StringField('Email', validators=[DataRequired(), Email()])
-#     password = PasswordField('Password', validators=[DataRequired()])
-#     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-#     submit = SubmitField('Sign Up')
-
-#     def validate_username(self, username):
-#         user = dbSession.execute(
-#             "SELECT * FROM users WHERE username = :username",
-#             {"username": username.data}
-#         ).fetchone()
-#         if user:
-#             raise ValidationError('Username already taken.')
-
-#     def validate_email(self, email):
-#         user = dbSession.execute(
-#             "SELECT * FROM users WHERE email = :email",
-#             {"email": email.data}
-#         ).fetchone()
-#         if user:
-#             raise ValidationError('Email already taken.')

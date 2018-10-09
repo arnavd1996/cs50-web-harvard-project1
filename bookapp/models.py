@@ -2,9 +2,8 @@ from datetime import datetime
 from bookapp import Base, dbSession
 from sqlalchemy import Column, String, Integer, Date, ForeignKey
 from sqlalchemy.orm import relationship
-from flask_login import UserMixin
 
-class User(Base, UserMixin):
+class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)

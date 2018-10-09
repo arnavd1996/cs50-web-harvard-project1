@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, flash, jsonify, request, g, session, redirect
+from flask import Flask, render_template, url_for, flash, jsonify, request, g, session, redirect, abort
 from bookapp import app, Base, engine, dbSession, bcrypt
 from bookapp.forms import RegistrationForm, LoginForm
 from bookapp.models import User, Review, Book
@@ -30,12 +30,12 @@ def register():
             hashed_password = bcrypt.generate_password_hash(reg_form.password.data).decode('utf-8')
             dbSession.execute(
                 "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)",
-                {"username": reg_form.username.data, "email":  reg_form.email.data, "password": hashed_password}
+                { "username": reg_form.username.data, "email":  reg_form.email.data, "password": hashed_password }
             )
             dbSession.commit()
-            dbSession.close()
-            return jsonify({'success': 'Registration Successful'})
-    return jsonify({'errors': reg_form.errors})
+            return jsonify({ 'success': 'Registration Successful' })
+
+    return jsonify({ 'errors': reg_form.errors })
 
 @app.route("/login", methods=['post', 'get'])
 def login():
@@ -46,16 +46,17 @@ def login():
         return render_template('login.html', login_form=login_form,  reg_form=reg_form)
 
     if request.method == 'POST':
+
         user = dbSession.execute(
             "SELECT * FROM users WHERE email = :email",
-            {"email": login_form.email.data}
+            { "email": login_form.email.data }
         ).fetchone()
-        dbSession.close()
+        
         if login_form.validate_on_submit():
             session.clear()
             session['user_id'] = user['id'] #add user id on session
-            return jsonify({'success': 'Login Successful'})
-    return jsonify({'errors': login_form.errors})
+            return jsonify({ 'success': 'Login Successful' })
+    return jsonify({ 'errors': login_form.errors })
 
 @app.before_request
 def load_logged_in_user():
@@ -69,7 +70,7 @@ def load_logged_in_user():
         ).fetchone()
         dbSession.close()
 
-@app.after_request
+@app.after_request #so we avoid user browser history when logged out
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
@@ -83,20 +84,16 @@ def logout():
 def search():
     if request.method == 'POST':
         text = request.form.get("searchText")
-        print(text)
         result = dbSession.execute(
             "SELECT * FROM books WHERE (LOWER(isbn) LIKE LOWER(:text)) OR (LOWER(title) LIKE LOWER(:text)) OR (author LIKE LOWER(:text)) LIMIT 10",
             { "text": '%' + text + '%'} 
         ).fetchall()
-        dbSession.close()
         data = []
         for row in result:
             data.append(dict(row))
-            print(data)
+            
         return jsonify({ 'data': data })
-# book route with pagination
-PER_PAGE = 20
-
+        
 @app.route("/book/<isbn>", methods=['get', 'post'])
 def book(isbn):
 
@@ -114,35 +111,19 @@ def book(isbn):
             { "isbn": isbn }
         ).fetchone()
 
-        user = dbSession.execute(
-            "SELECT * FROM reviews WHERE book_id = :book_id AND user_id = :user_id",
-            { "book_id": book['id'], "user_id": userId }
-        ).fetchone()
-
-        if user is not None:
-            voted=bool(user)
-
         if book is not None:
 
             page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
-
-            print ("page = {} ".format(page))
-            print ("per_page = {} ".format(per_page))
-            print ("offset = {} ".format(offset))
 
             pagination_reviews = dbSession.execute(
                 "SELECT u.username, r.* FROM users AS u JOIN reviews AS r ON u.id = r.user_id WHERE book_id = :book_id LIMIT :items_per_page OFFSET (:page * :items_per_page)",
                 { "book_id": book['id'], "items_per_page": per_page, "page": page - 1 }
             ).fetchall()
 
-            print ("pagination_reviews = {} ".format(pagination_reviews))
-
             totalReviewRows =  dbSession.execute(
                 "SELECT COUNT(*) FROM reviews WHERE book_id = :book_id",
                 { "book_id": book['id'] }
             ).fetchone()[0]
-
-            print ("totalReviewRows = {} ".format(totalReviewRows))
 
             reviewsData = []
 
@@ -150,12 +131,25 @@ def book(isbn):
 
             for row in pagination_reviews:
                 reviewsData.append(dict(row))
-            key = "TrD1hjMJeKCvkiU9xvh5Q"
-            goodreads_review_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={ "key": str(key), "isbns": str(isbn) }).json()
+
+            api_key = "TrD1hjMJeKCvkiU9xvh5Q"
             
-            print ("goodreads_review_data = {} ".format(goodreads_review_data['books']))
-        dbSession.close()
-        
+            goodreads_review_data = requests.get(
+                "https://www.goodreads.com/book/review_counts.json",
+                params={ "key": str(api_key), "isbns": str(isbn) },
+            ).json()['books'][0]
+
+            user = dbSession.execute(
+                "SELECT * FROM reviews WHERE book_id = :book_id AND user_id = :user_id",
+                { "book_id": book['id'], "user_id": userId }
+            ).fetchone()
+
+            if user is not None:
+                voted=bool(user)
+
+        else:
+            abort(404)
+
         return render_template(
             "book.html",
             book=book,
@@ -166,20 +160,8 @@ def book(isbn):
             page=page,
             per_page=per_page,
             pagination=pagination,
+            goodreads_review_data=goodreads_review_data,
         )
-                                         
-    # if request.method == 'POST':
-    #     rating = request.form.get("rating")
-    #     content = request.form.get("content")
-    #     book_id = request.form.get("book-id")
-    #     user_id = session.get('user_id')
-    #     date_posted = datetime.datetime.now()
-    #     dbSession.execute(
-    #         "INSERT INTO users (username, email, password) VALUES (:username, :email, :password)",
-    #         {"username": reg_form.username.data, "email":  reg_form.email.data, "password": hashed_password}
-    #     )
-    #     dbSession.commit()
-    #     return jsonify({ 'data': 'a'})
 
 @app.route("/addreview", methods=['get', 'post'])
 def addreview():
@@ -190,6 +172,7 @@ def addreview():
         userId = req_data['userId']
         bookId = req_data['bookId']
         dt = datetime.datetime.now()
+
         dbSession.execute(
             "INSERT INTO reviews (content, date_posted, user_id, book_id, rating) VALUES (:content, :date_posted, :user_id, :book_id, :rating)",
             {"content": text, "date_posted":  dt, "user_id": userId, "book_id": bookId, "rating": rate }
@@ -202,26 +185,46 @@ def addreview():
             { "book_id": bookId, "user_id": userId }
         ).fetchone()
         
-        dbSession.close()
-        
         return jsonify(dict(reviewByUser))
+        
+# API
+@app.route("/api/<isbn>", methods=['get'])
+def api(isbn):
 
-# @app.route("/api/<int:isbn>")
-# def flight(isbn):
-#     # Make sure flight exists.
-#     res = requests.get(
-#         "https://www.goodreads.com/book/review_counts.json",
-#         params={ "key": "KEY", "isbns": isbn }
-#     )
-#     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
-#     if book is None:
-#         return render_template("book.html", message="No such flight.")
+    if request.method == 'GET':
 
-#     # Get all passengers.
-#     passengers = db.execute("SELECT name FROM passengers WHERE flight_id = :flight_id",
-#                             {"flight_id": flight_id}).fetchall()
-#     return render_template("flight.html", flight=flight, passengers=passengers)
+        voted = None
+        userId = session.get('user_id')
+        reviews = None
 
+        book = dbSession.execute(
+            "SELECT * FROM books WHERE isbn = :isbn",
+            { "isbn": isbn }
+        ).fetchone()
+
+        if book is not None:
+
+            api_key = "TrD1hjMJeKCvkiU9xvh5Q"
+            
+            goodreads_review_data = requests.get(
+                "https://www.goodreads.com/book/review_counts.json",
+                params={ "key": str(api_key), "isbns": str(isbn) },
+            ).json()['books'][0]
+
+            if user is not None:
+                voted=bool(user)
+
+        else:
+            abort(404)
+            
+        return jsonify({
+            "title": book['title'],
+            "author": book['author'],
+            "year": book['publication_year'],
+            "isbn": book['isbn'],
+            "review_count": 28, #FROM THIS WEBSITE  \ NOT ON GOODREADS
+            "average_score": 5.0 #FROM THIS WEBSITE / NOT ON GOODREADS
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)
